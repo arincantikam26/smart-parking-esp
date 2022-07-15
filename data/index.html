@@ -1,0 +1,85 @@
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script> <!--Library Highchart JS untuk menampilkan grafik-->
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 800px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>ESP8266 Distance Plot</h2>
+  <div id="chart-distance" class="container"></div> <br> <!--Kelas html id : chart-distance (grafik)--> 
+  <h3>
+      <div id="parking">Status</div> 
+      <div id = "status">%STATUS%</div> <!--Kelas id : status -> menampilkan status -->
+  </h3>
+</body>
+<!--Javascript untuk menampilkan grafik secara realtime-->
+<script>
+var chartT = new Highcharts.Chart({ //buat onject baru menggunakan library Highchart
+  chart:{ renderTo : 'chart-distance' }, //sebagai ID
+  title: { text: 'HC-SR04 Distance' }, //menampilkan judul pada grafik
+  series: [{ //semua data yang diplot pada chart berasal dari object seri.
+    showInLegend: false,
+    data: [] //array -> nilai jarak akan ditampung disini
+  }],
+  plotOptions: { //menampilkan label nilai di setiap titik data kita.
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' } //warna dari garis grafik
+  },
+  xAxis: { type: 'datetime', //yang akan ditampilkan pada line x di grafik
+    dateTimeLabelFormats: { second: '%H:%M:%S' } //waktu 
+  },
+  yAxis: {
+    title: { text: 'Distance (CM)' } //akan ditampilkan pada line y di grafik
+  },
+  credits: { enabled: false }
+});
+
+//memanggil suatu fungsi secara berulang setiap beberpa milidetik. 
+//JAVASCRIPT AJAX
+//fungsi grafik
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest(); // buat object baru
+  xhttp.onreadystatechange = function() {// respon dari request client
+    if (this.readyState == 4 && this.status == 200) { //jika semua requestan telah oke/ selesai
+      var x = (new Date()).getTime(), //mendapatkan waktu terbaru/terupdate
+          y = parseFloat(this.responseText); //responsetect akan mengembalikan respon sebagai text //nilai jarak
+      console.log(this.responseText);
+      if(chartT.series[0].data.length > 10) {
+        chartT.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartT.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/distance", true); //HTTP method dan url yang dituju dengan menggunakan fungsi open
+  xhttp.send(); //mengirim request dengan menggunakan send
+}, 3000 ) ;
+
+//fungsi status
+setInterval(function() {
+    var xhttp = new XMLHttpRequest(); //obejct baru
+    xhttp.onreadystatechange = function() { //cek kondisi
+        if (this.readyState == 4 && this.status == 200) { //jika sudah oke
+        document.getElementById("status").innerHTML = this.responseText; //mendaptakan nilai si status
+      }
+    };
+    xhttp.open("GET", "/status", true) //method http dan url
+    xhttp.send(); // mengirim request dengan menggunakan send
+    }, 3000);
+
+</script>
+</html>
