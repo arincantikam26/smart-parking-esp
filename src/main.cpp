@@ -5,8 +5,8 @@
 #include <LittleFS.h>
 
 //declare credential wifi
-const char* ssid = "MasterAce";
-const char* password = "arin26112001";
+const char* ssid = "MasterAce"; //change with your ssid wifi
+const char* password = "arin26112001"; //change with your password wifi
 
 //open connection web server
 AsyncWebServer server(80);
@@ -44,7 +44,7 @@ String getStatus(){
   //suatu parkiran memiliki range 0 - 30 
   //jika kendaraan masuk dalam range 0-30 : posisi terisi
   // jika diluar range ex 31,32, dst : posisi kosong
-  if(jarak < 30){
+  if(jarak > 0 && jarak < 30){
     return "Posisi terisi";
   }
   return "Posisi kosong";
@@ -97,7 +97,7 @@ void smartParking(){
   if (jarak > 6 && jarak < 30 ) {
     digitalWrite(ledH, HIGH);
     digitalWrite(ledM, LOW);
-  } else if (jarak < 6) {
+  } else if (jarak > 0 && jarak < 6) {
     digitalWrite(buzzer, HIGH);
     digitalWrite(ledH, HIGH);
     digitalWrite(ledM, HIGH);
